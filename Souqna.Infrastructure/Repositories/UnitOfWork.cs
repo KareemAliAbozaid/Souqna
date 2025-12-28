@@ -1,7 +1,6 @@
 ﻿using Souqna.Domin.Interfaces;
 using Souqna.Infrastructure.Data;
 
-
 namespace Souqna.Infrastructure.Repositories
 {
     public class UnitOfWork : IUnitOfWork
@@ -19,6 +18,12 @@ namespace Souqna.Infrastructure.Repositories
             Categories = new CategoryRepository(_context);
             Products = new ProductRepository(_context);
             Photos = new PhotoRepository(_context);
+        }
+
+        public async Task<bool> SaveChangesAsync()
+        {
+            await _context.SaveChangesAsync();
+            return true;
         }
     }
 }

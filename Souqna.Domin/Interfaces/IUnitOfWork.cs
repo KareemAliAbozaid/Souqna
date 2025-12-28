@@ -6,5 +6,6 @@ namespace Souqna.Domin.Interfaces
         ICategoryRepository Categories { get; }
         IProductRepository Products { get; }
         IPhotoRepository Photos { get; }
+        Task<bool> SaveChangesAsync();
     }
 }
