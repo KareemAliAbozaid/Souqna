@@ -10,7 +10,7 @@ namespace Souqna.Infrastructure.Data.Config
         {
             builder.Property(p => p.Name).IsRequired().HasMaxLength(500);
             builder.Property(p => p.Description).HasMaxLength(2000);
-            builder.Property(p => p.Price).IsRequired().HasColumnType("decimal(18,2)");
+            builder.Property(p => p.NewPrice).IsRequired().HasColumnType("decimal(18,2)");
         }
     }
 }

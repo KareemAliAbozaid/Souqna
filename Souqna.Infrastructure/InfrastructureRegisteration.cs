@@ -1,8 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using Souqna.Domin.Interfaces;
+using Souqna.Domin.Services;
 using Souqna.Infrastructure.Repositories;
+using Souqna.Infrastructure.Repositories.Service;
 
 namespace Souqna.Infrastructure
 {
@@ -19,6 +22,22 @@ namespace Souqna.Infrastructure
                 var connectionString = configuration.GetConnectionString("DefaultConnection");
                 options.UseSqlServer(connectionString);
             });
+            // 
+            services.AddSingleton<IImagemanagmentService, ImagemanagmentService>();
+            var wwwrootPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+
+            if (!Directory.Exists(wwwrootPath))
+            {
+                Directory.CreateDirectory(wwwrootPath);
+            }
+
+            services.AddSingleton<IFileProvider>(
+                new PhysicalFileProvider(wwwrootPath)
+            );
+
+            // Register AutoMapper
+            services.AddAutoMapper(cfg => { /* configuration */ }, AppDomain.CurrentDomain.GetAssemblies());
+
             return services;
         }
     }
