@@ -1,32 +1,37 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Souqna.Domin.Entities;
 using Souqna.Domin.Interfaces;
 using Souqna.Infrastructure.Data;
 
 namespace Souqna.Infrastructure.Repositories
 {
-    public class GenericRepositories<T> : IGenericRepository<T> where T : class
+    public class GenericRepositories<T> : IGenericRepository<T> where T : BaseEntity
     {
         private readonly ApplicationDbContext _context;
+        protected readonly DbSet<T> _dbSet;
         public GenericRepositories(ApplicationDbContext context)
         {
             _context = context;
+            _dbSet = _context.Set<T>();
         }
-        public async Task<IReadOnlyList<T>> GetAllAsync()=>await _context.Set<T>().AsNoTracking().ToListAsync();
+
+
+        public async Task<IReadOnlyList<T>> GetAllAsync()=>await _dbSet.AsNoTracking().Where(c => !c.IsDeleted).ToListAsync();
 
 
         public async Task<IReadOnlyList<T>> GetAllAsync(params System.Linq.Expressions.Expression<Func<T, object>>[] includes)
         {
-           var query = _context.Set<T>().AsQueryable();
+            var query = _dbSet.AsQueryable().Where(c=>!c.IsDeleted); 
             foreach (var include in includes)
-            {
                 query = query.Include(include);
-            }
+
             return await query.AsNoTracking().ToListAsync();
+
         }
 
         public async Task<T?> GetByIdAsync(int id)
         {
-           var entity = await _context.Set<T>().FindAsync(id);
+           var entity = await _dbSet.FindAsync(id);
            return entity;
         }
 

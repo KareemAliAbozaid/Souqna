@@ -1,10 +1,11 @@
 ﻿
 
+using Souqna.Domin.Entities;
 using System.Linq.Expressions;
 
 namespace Souqna.Domin.Interfaces
 {
-    public interface IGenericRepository<T> where T : class
+    public interface IGenericRepository<T> where T : BaseEntity
     {
         Task<IReadOnlyList<T>> GetAllAsync();
         Task<IReadOnlyList<T>> GetAllAsync(params Expression<Func<T, object>>[] includes);

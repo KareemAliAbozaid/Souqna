@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Souqna.Infrastructure;
 using AutoMapper;
+using Souqna.API.Middleware;
 namespace Souqna.API
 {
     public class Program
@@ -13,6 +14,8 @@ namespace Souqna.API
 
             builder.Services.AddControllers();
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+            builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddMemoryCache();
             builder.Services.AddOpenApi();
             builder.Services.AddSwaggerGen();
 
@@ -28,8 +31,10 @@ namespace Souqna.API
                 app.UseSwaggerUI();
                
             }
-
+            app.UseStatusCodePagesWithReExecute("/erroes/{0}");
             app.UseHttpsRedirection();
+            app.UseMiddleware<ExptionsMiddleware>();
+
 
             app.UseAuthorization();
 

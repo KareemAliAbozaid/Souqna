@@ -18,6 +18,9 @@ namespace Souqna.Infrastructure.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+            //modelBuilder.Entity<Product>().HasQueryFilter(p => !p.IsDeleted);
+            //modelBuilder.Entity<Category>().HasQueryFilter(c => !c.IsDeleted);
+            //modelBuilder.Entity<Photo>().HasQueryFilter(p => !p.IsDeleted);
             // Configure your entity mappings here
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
         }

@@ -16,7 +16,7 @@ namespace Souqna.Domin.DTOs
         public decimal NewPrice { get; set; }
         public decimal OldPrice { get; set; }
         public string CategoryName { get; set; }
-        public virtual ICollection<ProductDto> Photos { get; set; }
+        public virtual ICollection<PhotoDto> Photos { get; set; }
     }
     public record PhotoDto
     {

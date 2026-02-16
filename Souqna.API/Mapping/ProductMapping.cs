@@ -8,9 +8,16 @@ namespace Souqna.API.Mapping
     {
         public ProductMapping()
         {
-         CreateMap<Product, ProductDto>().ForMember(x=>x.CategoryName,opt=>opt.MapFrom(src=>src.Category.Name)).ReverseMap();
+         CreateMap<Product, ProductDto>().ForMember(x=>x.CategoryName,opt=>opt.MapFrom(src=>src.Category.Name));
          CreateMap<AddProductDto, Product>().ForMember(i=>i.Photos,opt=>opt.Ignore()).ReverseMap();
          CreateMap<UpdateProductDto, Product>().ForMember(i=>i.Photos,opt=>opt.Ignore()).ReverseMap();
+
+
+
+            CreateMap<Photo, PhotoDto>().ReverseMap();
+
+
+
         }
     }
 }
