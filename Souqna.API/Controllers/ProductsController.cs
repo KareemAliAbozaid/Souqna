@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Souqna.API.Helper;
 using Souqna.Domin.DTOs;
 using Souqna.Domin.Interfaces;
+using Souqna.Domin.Sharing;
 
 namespace Souqna.API.Controllers
 {
@@ -13,17 +14,14 @@ namespace Souqna.API.Controllers
         {
         }
         [HttpGet]
-        public async Task<IActionResult> GetAllProducts()
+        public async Task<IActionResult> GetAllProducts([FromQuery] ProductParams productParams)
         {
             try
             {
-                var products = await unitOfWork.Products.GetAllAsync(x => x.Category, x => x.Photos);
-                if (products is null)
-                {
-                    return NotFound(new ResponseApi(404, "Product Not Found"));
-                }
-                var productDto = mapper.Map<IEnumerable<ProductDto>>(products);
-                return Ok(new ResponseApiResponse<IEnumerable<ProductDto>>(200, productDto));
+                var products = await unitOfWork.Products.GetAllAsync(productParams);
+                var count = await unitOfWork.Products.CountAsync(); 
+                var pagination = new Pagination<ProductDto>(products, productParams.PageNumber, productParams.PageSize,count);
+                return Ok(pagination);
             }
             catch (Exception ex)
             {

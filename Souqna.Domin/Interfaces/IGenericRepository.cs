@@ -14,5 +14,6 @@ namespace Souqna.Domin.Interfaces
         Task<T> AddAsync(T entity);
         Task UpdateAsync(T entity);
         Task DeleteAsync(int id);
+        Task<int> CountAsync();
     }
 }

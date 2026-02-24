@@ -4,6 +4,7 @@ using Souqna.Domin.DTOs;
 using Souqna.Domin.Entities;
 using Souqna.Domin.Interfaces;
 using Souqna.Domin.Services;
+using Souqna.Domin.Sharing;
 using Souqna.Infrastructure.Data;
 
 namespace Souqna.Infrastructure.Repositories
@@ -18,6 +19,32 @@ namespace Souqna.Infrastructure.Repositories
             this.context = context;
             this.mapper = mapper;
             this.imagemanagmentService = imagemanagmentService;
+        }
+        public async Task<IEnumerable<ProductDto>> GetAllAsync(ProductParams productParams)
+        {
+            var products = context.Products
+                                  .Include(m => m.Category)
+                                  .Include(m => m.Photos)
+                                  .AsNoTracking()
+                                  .Where(c => !c.IsDeleted);
+
+            if (productParams.CategoryId.HasValue)
+            {
+                products = products.Where(m => m.CategoryId == productParams.CategoryId);
+            }
+
+            products = productParams.Sort switch
+            {
+                "priceAsc" => products.OrderBy(m => m.NewPrice),
+                "priceDesc" => products.OrderByDescending(m => m.NewPrice),
+                _ => products.OrderBy(m => m.Name),
+            };
+
+            products = products.Skip((productParams.PageNumber - 1) * productParams.PageSize)
+                               .Take(productParams.PageSize);
+
+            var result = await products.ToListAsync(); 
+            return mapper.Map<IEnumerable<ProductDto>>(result);
         }
 
         public async Task<bool> AddAsync(AddProductDto productDto)
@@ -78,17 +105,5 @@ namespace Souqna.Infrastructure.Repositories
             return true;
         }
 
-        //public async Task DeleteAsync(Product product)
-        //{
-        //    var photo=await context.Photos.Where(m => m.ProductId == product.Id).ToListAsync();
-        //    foreach (var item in photo)
-        //    {
-        //        imagemanagmentService.DeleteImageAsync(item.ImageName);
-        //    }
-        //    context.Photos.RemoveRange(photo);
-        //    await context.SaveChangesAsync();
-        
-            
-        //}
     }
 }

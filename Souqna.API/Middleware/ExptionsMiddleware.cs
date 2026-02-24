@@ -21,7 +21,8 @@ namespace Souqna.API.Middleware
         {
             try
             {
-                    if (!IsRequstAllowed(context))
+                ApplySecurityHeaders(context);
+                if (!IsRequstAllowed(context))
                     {
                         context.Response.StatusCode = (int)HttpStatusCode.TooManyRequests;
                         context.Response.ContentType = "application/json";
@@ -72,6 +73,12 @@ namespace Souqna.API.Middleware
             }
 
             return true;
+        }
+        private void ApplySecurityHeaders(HttpContext context)
+        {
+            context.Response.Headers["X-Content-Type-Options"] = "nosniff";
+            context.Response.Headers["X-Frame-Options"] = "DENY";
+            context.Response.Headers["X-XSS-Protection"] = "1; mode=block";
         }
     }
 }
