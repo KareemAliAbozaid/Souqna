@@ -1,9 +1,9 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using Souqna.Domin.DTOs;
+using Souqna.Application.DTOs;
+using Souqna.Application.Interfaces.Repositories;
+using Souqna.Application.Interfaces.Services;
 using Souqna.Domin.Entities;
-using Souqna.Domin.Interfaces;
-using Souqna.Domin.Services;
 using Souqna.Domin.Sharing;
 using Souqna.Infrastructure.Data;
 
@@ -13,8 +13,8 @@ namespace Souqna.Infrastructure.Repositories
     {
         private readonly ApplicationDbContext context;
         private readonly IMapper mapper;
-        private readonly IImagemanagmentService imagemanagmentService;
-        public ProductRepository(ApplicationDbContext context, IMapper mapper, IImagemanagmentService imagemanagmentService) : base(context)
+        private readonly IImageManagementService imagemanagmentService;
+        public ProductRepository(ApplicationDbContext context, IMapper mapper, IImageManagementService imagemanagmentService) : base(context)
         {
             this.context = context;
             this.mapper = mapper;

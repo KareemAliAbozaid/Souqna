@@ -1,12 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
-using Souqna.Domin.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
-namespace Souqna.Domin.DTOs
+namespace Souqna.Application.DTOs
 {
     public record ProductDto
     {
@@ -18,6 +12,7 @@ namespace Souqna.Domin.DTOs
         public string CategoryName { get; set; }
         public virtual ICollection<PhotoDto> Photos { get; set; }
     }
+
     public record PhotoDto
     {
         public string ImageName { get; set; }
@@ -34,9 +29,8 @@ namespace Souqna.Domin.DTOs
         public IFormFileCollection Photos { get; set; }
     }
 
-    public record UpdateProductDto: AddProductDto
+    public record UpdateProductDto : AddProductDto
     {
         public int Id { get; set; }
-
     }
 }

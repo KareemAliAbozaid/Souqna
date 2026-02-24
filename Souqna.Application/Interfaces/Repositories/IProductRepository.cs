@@ -1,10 +1,10 @@
-﻿using Souqna.Domin.DTOs;
+using Souqna.Application.DTOs;
 using Souqna.Domin.Entities;
 using Souqna.Domin.Sharing;
 
-namespace Souqna.Domin.Interfaces
+namespace Souqna.Application.Interfaces.Repositories
 {
-    public interface IProductRepository: IGenericRepository< Product>
+    public interface IProductRepository : IGenericRepository<Product>
     {
         Task<IEnumerable<ProductDto>> GetAllAsync(ProductParams productParams);
         Task<bool> AddAsync(AddProductDto productDto);

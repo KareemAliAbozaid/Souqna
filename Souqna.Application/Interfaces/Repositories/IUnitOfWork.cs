@@ -1,5 +1,4 @@
-﻿
-namespace Souqna.Domin.Interfaces
+namespace Souqna.Application.Interfaces.Repositories
 {
     public interface IUnitOfWork
     {

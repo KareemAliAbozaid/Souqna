@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using Souqna.Domin.Interfaces;
+using Souqna.Application.Interfaces.Repositories;
 
 
 namespace Souqna.API.Controllers

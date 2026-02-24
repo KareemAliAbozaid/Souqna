@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.FileProviders;
-using Souqna.Domin.Services;
+using Souqna.Application.Interfaces.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,16 +9,16 @@ using System.Threading.Tasks;
 
 namespace Souqna.Infrastructure.Repositories.Service
 {
-    public class ImagemanagmentService : IImagemanagmentService
+    public class ImageManagementService : IImageManagementService
     {
         private readonly IFileProvider fileProvider;
 
-        public ImagemanagmentService(IFileProvider fileProvider)
+        public ImageManagementService(IFileProvider fileProvider)
         {
             this.fileProvider = fileProvider;
         }
 
-      public async Task<List<string>> UploadImageAsync(IFormFileCollection files, string src)
+        public async Task<List<string>> UploadImageAsync(IFormFileCollection files, string src)
         {
             List<string> savedImagePaths = new List<string>();
             var imageDirectory = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Images", src);
@@ -46,7 +46,7 @@ namespace Souqna.Infrastructure.Repositories.Service
 
             return savedImagePaths;
         }
-      public void DeleteImageAsync(string relativePath)
+        public void DeleteImageAsync(string relativePath)
         {
             var fullPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", relativePath.TrimStart('/').Replace("/", Path.DirectorySeparatorChar.ToString()));
 

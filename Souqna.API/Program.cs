@@ -1,7 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Souqna.Infrastructure;
-using AutoMapper;
-using Souqna.API.Middleware;
+
 namespace Souqna.API
 {
     public class Program
@@ -11,14 +10,13 @@ namespace Souqna.API
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
-
             builder.Services.AddControllers();
-            // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddMemoryCache();
-            builder.Services.AddOpenApi();
+       
             builder.Services.AddSwaggerGen();
 
+            // Add Infrastructure services (which includes Application services)
             builder.Services.AddInfrastructureServices(builder.Configuration);
 
             var app = builder.Build();
@@ -26,18 +24,15 @@ namespace Souqna.API
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
-                app.MapOpenApi();
+             
                 app.UseSwagger();
                 app.UseSwaggerUI();
-               
             }
             app.UseStatusCodePagesWithReExecute("/erroes/{0}");
             app.UseHttpsRedirection();
-            app.UseMiddleware<ExptionsMiddleware>();
-
+            app.UseMiddleware<Middleware.ExptionsMiddleware>();
 
             app.UseAuthorization();
-
 
             app.MapControllers();
 

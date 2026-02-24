@@ -2,8 +2,8 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Souqna.API.Helper;
-using Souqna.Domin.DTOs;
-using Souqna.Domin.Interfaces;
+using Souqna.Application.DTOs;
+using Souqna.Application.Interfaces.Repositories;
 
 namespace Souqna.API.Controllers
 {
@@ -18,7 +18,7 @@ namespace Souqna.API.Controllers
         {
             try
             {
-                var categories = await unitOfWork.Categories.GetAllAsync(); // IReadOnlyList<Category>
+                var categories = await unitOfWork.Categories.GetAllAsync();
                 var categoryDtos = mapper.Map<IEnumerable<CategoryDto>>(categories);
                 return Ok(new ResponseApiResponse<IEnumerable<CategoryDto>>(200, categoryDtos));
             }
@@ -27,6 +27,7 @@ namespace Souqna.API.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, new ResponseApi(500, ex.Message));
             }
         }
+        
         [HttpGet("{id}")]
         public async Task<IActionResult> GetCategoryById(int id)
         {
@@ -45,6 +46,7 @@ namespace Souqna.API.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, new ResponseApi(500, ex.Message));
             }
         }
+        
         [HttpPost]
         public async Task<IActionResult> CreateCategory([FromBody] CategoryDto categoryDto)
         {
@@ -59,8 +61,8 @@ namespace Souqna.API.Controllers
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, new ResponseApi(500, ex.Message));
             }
-
         }
+        
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateCategory(int id, [FromBody] UpdateCategoryDto updateCategoryDto)
         {
@@ -82,6 +84,7 @@ namespace Souqna.API.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, new ResponseApi(500, ex.Message));
             }
         }
+        
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCategory(int id)
         {
@@ -92,10 +95,10 @@ namespace Souqna.API.Controllers
                 {
                     return NotFound(new ResponseApi(404, "Category not found"));
                 }
-                existingCategory.IsDeleted= true;
-                existingCategory.UpdatedAt= DateTime.UtcNow;
+                existingCategory.IsDeleted = true;
+                existingCategory.UpdatedAt = DateTime.UtcNow;
                 await unitOfWork.SaveChangesAsync();
-                return Ok(new ResponseApi(200, "Product deleted successfully."));
+                return Ok(new ResponseApi(200, "Category deleted successfully."));
             }
             catch (Exception ex)
             {

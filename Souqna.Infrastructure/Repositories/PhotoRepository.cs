@@ -1,5 +1,5 @@
 ﻿using Souqna.Domin.Entities;
-using Souqna.Domin.Interfaces;
+using Souqna.Application.Interfaces.Repositories;
 using Souqna.Infrastructure.Data;
 
 namespace Souqna.Infrastructure.Repositories

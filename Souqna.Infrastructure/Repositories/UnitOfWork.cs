@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
-using Souqna.Domin.Interfaces;
-using Souqna.Domin.Services;
+using Souqna.Application.Interfaces.Repositories;
+using Souqna.Application.Interfaces.Services;
 using Souqna.Infrastructure.Data;
 
 namespace Souqna.Infrastructure.Repositories
@@ -9,21 +9,21 @@ namespace Souqna.Infrastructure.Repositories
     {
         private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
-        private readonly IImagemanagmentService _imagemanagmentService;
+        private readonly IImageManagementService _imageManagementService;
         public ICategoryRepository Categories { get; }
 
         public IProductRepository Products { get; }
 
         public IPhotoRepository Photos { get; }
 
-        public UnitOfWork(ApplicationDbContext context, IMapper mapper, IImagemanagmentService imagemanagmentService)
+        public UnitOfWork(ApplicationDbContext context, IMapper mapper, IImageManagementService imageManagementService)
         {
             _context = context;
             Categories = new CategoryRepository(_context);
-            Products = new ProductRepository(_context,mapper,imagemanagmentService);
+            Products = new ProductRepository(_context, mapper, imageManagementService);
             Photos = new PhotoRepository(_context);
             _mapper = mapper;
-            _imagemanagmentService = imagemanagmentService;
+            _imageManagementService = imageManagementService;
         }
 
         public async Task<bool> SaveChangesAsync()

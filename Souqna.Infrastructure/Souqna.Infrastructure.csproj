@@ -28,6 +28,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Souqna.Domin\Souqna.Domin.csproj" />
+    <ProjectReference Include="..\Souqna.Application\Souqna.Application.csproj" />
   </ItemGroup>
 
 </Project>
