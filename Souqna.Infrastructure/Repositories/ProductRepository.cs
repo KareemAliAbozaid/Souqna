@@ -27,19 +27,25 @@ namespace Souqna.Infrastructure.Repositories
                                   .Include(m => m.Photos)
                                   .AsNoTracking()
                                   .Where(c => !c.IsDeleted);
-
+            // Search functionality: split the search string into words and check if all words are contained in either the name or description
+            if (!string.IsNullOrEmpty(productParams.Search))
+            {
+                var searchWord = productParams.Search.Split(' ');
+                products=products.Where(m=>searchWord.All(word=>m.Name.ToLower().Contains(word.ToLower()) || m.Description.ToLower().Contains(word.ToLower())));
+            }
+            // Filter by category if CategoryId is provided
             if (productParams.CategoryId.HasValue)
             {
                 products = products.Where(m => m.CategoryId == productParams.CategoryId);
             }
-
+            // Sorting functionality based on the Sort parameter
             products = productParams.Sort switch
             {
                 "priceAsc" => products.OrderBy(m => m.NewPrice),
                 "priceDesc" => products.OrderByDescending(m => m.NewPrice),
                 _ => products.OrderBy(m => m.Name),
             };
-
+            // Pagination: skip and take based on the PageNumber and PageSize parameters
             products = products.Skip((productParams.PageNumber - 1) * productParams.PageSize)
                                .Take(productParams.PageSize);
 

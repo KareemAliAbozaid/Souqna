@@ -9,6 +9,7 @@ namespace Souqna.Application.DTOs
         public string? Description { get; set; }
         public decimal NewPrice { get; set; }
         public decimal OldPrice { get; set; }
+        public int CategoryId { get; set; }
         public string CategoryName { get; set; }
         public virtual ICollection<PhotoDto> Photos { get; set; }
     }

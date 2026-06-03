@@ -9,7 +9,7 @@ namespace Souqna.Application.Mappings
         public CategoryMappingProfile()
         {
             CreateMap<Category, CategoryDto>()
-                .ConstructUsing(src => new CategoryDto(src.Name, src.Description))
+                .ConstructUsing(src => new CategoryDto(src.Id,src.Name, src.Description))
                 .ReverseMap()
                 .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
                 .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())

@@ -31,7 +31,8 @@ namespace Souqna.Infrastructure.Repositories.Service
             {
                 if (file.Length > 0)
                 {
-                    var fileName = Path.GetFileName(file.FileName);
+                    var extension = Path.GetExtension(file.FileName);
+                    var fileName = $"{Guid.NewGuid():N}{extension}";
                     var savePath = Path.Combine(imageDirectory, fileName);
                     var imageUrl = $"/Images/{src}/{fileName}";
 
