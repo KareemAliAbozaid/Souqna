@@ -1,12 +1,15 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using AutoMapper;
 using Souqna.API.Helper;
 using Souqna.Application.DTOs;
 using Souqna.Application.Interfaces.Repositories;
 
 namespace Souqna.API.Controllers
 {
+    [Authorize]
     public class CategoriesController : BaseController
     {
         public CategoriesController(IUnitOfWork unitOfWork, IMapper mapper) : base(unitOfWork, mapper)
@@ -14,6 +17,7 @@ namespace Souqna.API.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Customer,Seller,Admin")]
         public async Task<IActionResult> GetAllCategories()
         {
             try
@@ -29,6 +33,7 @@ namespace Souqna.API.Controllers
         }
         
         [HttpGet("{id}")]
+        [Authorize(Roles = "Customer,Seller,Admin")]
         public async Task<IActionResult> GetCategoryById(int id)
         {
             try
@@ -48,6 +53,7 @@ namespace Souqna.API.Controllers
         }
         
         [HttpPost]
+        [Authorize(Policy = "CanManageCategories")]
         public async Task<IActionResult> CreateCategory([FromBody] CategoryDto categoryDto)
         {
             try
@@ -64,6 +70,7 @@ namespace Souqna.API.Controllers
         }
         
         [HttpPut("{id}")]
+        [Authorize(Policy = "CanManageCategories")]
         public async Task<IActionResult> UpdateCategory(int id, [FromBody] UpdateCategoryDto updateCategoryDto)
         {
             try
@@ -86,6 +93,7 @@ namespace Souqna.API.Controllers
         }
         
         [HttpDelete("{id}")]
+        [Authorize(Policy = "CanManageCategories")]
         public async Task<IActionResult> DeleteCategory(int id)
         {
             try

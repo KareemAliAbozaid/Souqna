@@ -1,5 +1,11 @@
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Microsoft.AspNetCore.Identity;
 using Souqna.Infrastructure;
+using Souqna.Application.Constants;
+using Souqna.Infrastructure.Data;
 
 namespace Souqna.API
 {
@@ -13,11 +19,70 @@ namespace Souqna.API
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddMemoryCache();
-            
-            builder.Services.AddSwaggerGen();
 
-            // Add Infrastructure services (which includes Application services)
+            builder.Services.AddSwaggerGen(c =>
+            {
+                // Add JWT bearer definition for Swagger
+                c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+                {
+                    Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
+                    Name = "Authorization",
+                    In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+                    Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
+                    Scheme = "bearer"
+                });
+                c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+                {
+                    {
+                        new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+                        {
+                            Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                            {
+                                Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        },
+                        new string[] { }
+                    }
+                });
+            });
+
+            // Add Infrastructure services (which includes Application services and Identity registration)
             builder.Services.AddInfrastructureServices(builder.Configuration);
+
+            // Configure authentication (JWT)
+            var jwtKey = builder.Configuration["Jwt:Key"];
+            var jwtIssuer = builder.Configuration["Jwt:Issuer"];
+            var jwtAudience = builder.Configuration["Jwt:Audience"];
+
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
+                    ValidateIssuer = true,
+                    ValidIssuer = jwtIssuer,
+                    ValidateAudience = true,
+                    ValidAudience = jwtAudience,
+                    ValidateLifetime = true,
+                    ClockSkew = System.TimeSpan.Zero
+                };
+            });
+
+            // Authorization policies
+            builder.Services.AddAuthorization(options =>
+            {
+                options.AddPolicy("CanManageProducts", policy => policy.RequireRole(Roles.Admin, Roles.Seller));
+                options.AddPolicy("CanManageCategories", policy => policy.RequireRole(Roles.Admin));
+                options.AddPolicy("CanManageUsers", policy => policy.RequireRole(Roles.Admin));
+                options.AddPolicy("CanManageOrders", policy => policy.RequireRole(Roles.Admin, Roles.Seller));
+            });
             builder.Services.AddCors(opt =>
             {
                 opt.AddPolicy("CorsPolicy", policy =>
@@ -59,10 +124,21 @@ namespace Souqna.API
                 app.UseSwaggerUI();
             }
 
+            // Seed roles on startup
+            try
+            {
+                RoleSeeder.SeedRolesAsync(app.Services).GetAwaiter().GetResult();
+            }
+            catch
+            {
+                // swallow errors during seeding to avoid startup failure
+            }
+
             app.UseCors("CorsPolicy");
             app.UseHttpsRedirection();
          app.UseStaticFiles();
             app.UseMiddleware<Middleware.ExptionsMiddleware>();
+            app.UseAuthentication();
             app.UseAuthorization();
             app.MapControllers();
 

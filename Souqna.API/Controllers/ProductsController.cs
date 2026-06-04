@@ -1,13 +1,16 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Souqna.API.Helper;
 using Souqna.Application.DTOs;
 using Souqna.Application.Interfaces.Repositories;
 using Souqna.Domin.Sharing;
+using System.Security.Claims;
 
 namespace Souqna.API.Controllers
 {
+    [Authorize]
     public class ProductsController : BaseController
     {
         public ProductsController(IUnitOfWork unitOfWork, IMapper mapper) : base(unitOfWork, mapper)
@@ -15,6 +18,7 @@ namespace Souqna.API.Controllers
         }
         
         [HttpGet]
+        [Authorize(Roles = "Customer,Seller,Admin")]
         public async Task<IActionResult> GetAllProducts([FromQuery] ProductParams productParams)
         {
             try
@@ -31,6 +35,7 @@ namespace Souqna.API.Controllers
         }
         
         [HttpGet("{id}")]
+        [Authorize(Roles = "Customer,Seller,Admin")]
         public async Task<IActionResult> GetProductById(int id)
         {
             try
@@ -50,10 +55,14 @@ namespace Souqna.API.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = "CanManageProducts")]
         public async Task<IActionResult> AddProduct([FromForm] AddProductDto addProductDto)
         {
             try
             {
+                // set seller id from authenticated user
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                addProductDto.SellerId = userId;
                 await unitOfWork.Products.AddAsync(addProductDto);
                 return Ok(new ResponseApi(200, "Added Successfully"));
             }
@@ -64,10 +73,22 @@ namespace Souqna.API.Controllers
         }
         
         [HttpPut]
+        [Authorize(Policy = "CanManageProducts")]
         public async Task<IActionResult> UpdateProduct([FromForm] UpdateProductDto updateProductDto)
         {
             try
             {
+                // ownership validation: sellers can only update their own products
+                var existing = await unitOfWork.Products.GetByIdAsync(updateProductDto.Id);
+                if (existing == null)
+                    return NotFound(new ResponseApi(404, "Product Not Found"));
+
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var isAdmin = User.IsInRole("Admin");
+                if (!isAdmin && existing.SellerId != userId)
+                    return Forbid();
+
+                updateProductDto.SellerId = userId;
                 var isUpdated = await unitOfWork.Products.UpdateAsync(updateProductDto);
                 if (!isUpdated)
                 {
@@ -82,6 +103,7 @@ namespace Souqna.API.Controllers
         }
         
         [HttpDelete("{id}")]
+        [Authorize(Policy = "CanManageProducts")]
         public async Task<IActionResult> Delete(int id)
         {
             try
@@ -91,6 +113,11 @@ namespace Souqna.API.Controllers
                 {
                     return NotFound(new ResponseApi(404, "Product not found."));
                 }
+
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var isAdmin = User.IsInRole("Admin");
+                if (!isAdmin && product.SellerId != userId)
+                    return Forbid();
 
                 product.IsDeleted = true;
                 await unitOfWork.SaveChangesAsync();

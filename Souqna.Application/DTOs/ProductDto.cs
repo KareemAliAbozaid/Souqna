@@ -28,6 +28,8 @@ namespace Souqna.Application.DTOs
         public decimal OldPrice { get; set; }
         public int CategoryId { get; set; }
         public IFormFileCollection Photos { get; set; }
+        // SellerId will be set by the API controller from the authenticated user
+        public string? SellerId { get; set; }
     }
 
     public record UpdateProductDto : AddProductDto
