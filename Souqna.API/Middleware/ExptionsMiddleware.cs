@@ -1,7 +1,10 @@
-﻿using Microsoft.Extensions.Caching.Memory;
-using Souqna.API.Helper;
+﻿using System;
 using System.Net;
 using System.Text.Json;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Caching.Memory;
+using Souqna.API.Helper;
 
 namespace Souqna.API.Middleware
 {
@@ -11,28 +14,31 @@ namespace Souqna.API.Middleware
         private readonly IHostEnvironment _env;
         private readonly IMemoryCache _memoryCache;
         private readonly TimeSpan _ratelimitWindow = TimeSpan.FromMinutes(1);
+
         public ExptionsMiddleware(RequestDelegate next, IHostEnvironment env, IMemoryCache memoryCache)
         {
             _next = next;
             _env = env;
             _memoryCache = memoryCache;
         }
+
         public async Task InvokeAsync(HttpContext context)
         {
             try
             {
                 ApplySecurityHeaders(context);
+
                 if (!IsRequstAllowed(context))
-                    {
-                        context.Response.StatusCode = (int)HttpStatusCode.TooManyRequests;
-                        context.Response.ContentType = "application/json";
-    
-                        var errorResponse = new ApiExptions((int)HttpStatusCode.TooManyRequests, "Too many requests. Please try again later.");
-    
-                        var json = JsonSerializer.Serialize(errorResponse);
-                        await context.Response.WriteAsJsonAsync(json);
-                        return;
+                {
+                    context.Response.StatusCode = (int)HttpStatusCode.TooManyRequests;
+                    context.Response.ContentType = "application/json";
+
+                    var errorResponse = new ApiExptions((int)HttpStatusCode.TooManyRequests, "Too many requests. Please try again later.");
+                    var json = JsonSerializer.Serialize(errorResponse);
+                    await context.Response.WriteAsync(json);
+                    return;
                 }
+
                 await _next(context);
             }
             catch (Exception ex)
@@ -40,13 +46,15 @@ namespace Souqna.API.Middleware
                 context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                 context.Response.ContentType = "application/json";
 
-                var errorResponse = _env.IsDevelopment() ? new ApiExptions((int)HttpStatusCode.InternalServerError, ex.Message, ex.StackTrace) :
-                    new ApiExptions((int)HttpStatusCode.InternalServerError, ex.Message);
+                var errorResponse = _env.IsDevelopment()
+                    ? new ApiExptions((int)HttpStatusCode.InternalServerError, ex.Message, ex.StackTrace)
+                    : new ApiExptions((int)HttpStatusCode.InternalServerError, ex.Message);
 
                 var json = JsonSerializer.Serialize(errorResponse);
-                await context.Response.WriteAsJsonAsync(json);
+                await context.Response.WriteAsync(json);
             }
         }
+
         private bool IsRequstAllowed(HttpContext context)
         {
             var ipAddress = context.Connection.RemoteIpAddress?.ToString();
@@ -65,6 +73,7 @@ namespace Souqna.API.Middleware
                 {
                     return false;
                 }
+
                 _memoryCache.Set(cacheKey, (timestamp, requestCount + 1), _ratelimitWindow);
             }
             else
@@ -74,6 +83,7 @@ namespace Souqna.API.Middleware
 
             return true;
         }
+
         private void ApplySecurityHeaders(HttpContext context)
         {
             context.Response.Headers["X-Content-Type-Options"] = "nosniff";

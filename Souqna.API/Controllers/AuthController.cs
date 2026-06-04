@@ -7,10 +7,11 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.Extensions.Configuration;
-using Souqna.Application.Constants;
+
 using System.Collections.Generic;
 using System.Linq;
 using System;
+using Souqna.Application.Constants;
 
 namespace Souqna.API.Controllers
 {
