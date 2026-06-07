@@ -18,7 +18,7 @@ namespace Souqna.API.Controllers
         }
         
         [HttpGet]
-        [Authorize(Roles = "Customer,Seller,Admin")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetAllProducts([FromQuery] ProductParams productParams)
         {
             try
@@ -35,7 +35,7 @@ namespace Souqna.API.Controllers
         }
         
         [HttpGet("{id}")]
-        [Authorize(Roles = "Customer,Seller,Admin")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetProductById(int id)
         {
             try

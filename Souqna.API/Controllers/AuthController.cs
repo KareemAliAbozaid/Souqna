@@ -36,21 +36,35 @@ namespace Souqna.API.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var user = new IdentityUser { UserName = request.Email, Email = request.Email };
-            var result = await _userManager.CreateAsync(user, request.Password);
-            if (!result.Succeeded)
+            var user = new IdentityUser
             {
-                return BadRequest(result.Errors);
-            }
+                UserName = request.Email,
+                Email = request.Email
+            };
 
-            var role = string.IsNullOrEmpty(request.Role) ? Roles.Customer : request.Role;
+            var result = await _userManager.CreateAsync(user, request.Password);
+
+            if (!result.Succeeded)
+                return BadRequest(result.Errors);
+
+            var role = string.IsNullOrEmpty(request.Role)
+                ? Roles.Customer
+                : request.Role;
+
             if (!await _roleManager.RoleExistsAsync(role))
             {
                 await _roleManager.CreateAsync(new IdentityRole(role));
             }
+
             await _userManager.AddToRoleAsync(user, role);
 
-            return Ok(new { Message = "User created successfully" });
+            var token = GenerateJwtToken(user, role);
+
+            return Ok(new
+            {
+                Message = "User created successfully",
+                Token = token
+            });
         }
 
         [HttpPost("login")]
@@ -77,10 +91,13 @@ namespace Souqna.API.Controllers
             {
                 new Claim(JwtRegisteredClaimNames.Sub, user.Id),
                 new Claim(JwtRegisteredClaimNames.Email, user.Email ?? string.Empty),
+                // Standard name claim
+                new Claim("name", user.UserName ?? string.Empty),
+                // include role both as ClaimTypes.Role (used by ASP.NET) and a "role" claim for JWT consumers
                 new Claim(ClaimTypes.Role, role),
+                new Claim("role", role),
                 new Claim("UserId", user.Id),
-                new Claim("Email", user.Email ?? string.Empty),
-                new Claim("Role", role)
+                new Claim("Email", user.Email ?? string.Empty)
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));

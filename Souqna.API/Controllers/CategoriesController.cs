@@ -17,7 +17,7 @@ namespace Souqna.API.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "Customer,Seller,Admin")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetAllCategories()
         {
             try
@@ -33,7 +33,7 @@ namespace Souqna.API.Controllers
         }
         
         [HttpGet("{id}")]
-        [Authorize(Roles = "Customer,Seller,Admin")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetCategoryById(int id)
         {
             try
