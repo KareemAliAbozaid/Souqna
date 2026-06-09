@@ -108,10 +108,11 @@ namespace Souqna.API
                     else
                     {
                         policy.WithOrigins(
-                            "http://localhost:4200",
-                            "http://localhost:54044",
-                            "https://localhost:4200"
-                        );
+                            "https://victorious-rock-0234bad00.7.azurestaticapps.net"
+                        )
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .AllowCredentials();
                     }
                 });
             });

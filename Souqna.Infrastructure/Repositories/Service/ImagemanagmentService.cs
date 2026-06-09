@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.FileProviders;
 using Souqna.Application.Interfaces.Services;
 using System;
@@ -12,16 +13,24 @@ namespace Souqna.Infrastructure.Repositories.Service
     public class ImageManagementService : IImageManagementService
     {
         private readonly IFileProvider fileProvider;
+        private readonly IWebHostEnvironment env;
 
-        public ImageManagementService(IFileProvider fileProvider)
+        public ImageManagementService(
+            IFileProvider fileProvider,
+            IWebHostEnvironment env)
         {
             this.fileProvider = fileProvider;
+            this.env = env;
         }
 
         public async Task<List<string>> UploadImageAsync(IFormFileCollection files, string src)
         {
             List<string> savedImagePaths = new List<string>();
-            var imageDirectory = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Images", src);
+            var imageDirectory = Path.Combine(
+      env.WebRootPath,
+      "Images",
+      src
+  );
             if (!Directory.Exists(imageDirectory))
             {
                 Directory.CreateDirectory(imageDirectory);
@@ -49,7 +58,11 @@ namespace Souqna.Infrastructure.Repositories.Service
         }
         public void DeleteImageAsync(string relativePath)
         {
-            var fullPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", relativePath.TrimStart('/').Replace("/", Path.DirectorySeparatorChar.ToString()));
+            var fullPath = Path.Combine(
+    env.WebRootPath,
+    relativePath.TrimStart('/')
+        .Replace("/", Path.DirectorySeparatorChar.ToString())
+);
 
             if (File.Exists(fullPath))
             {
